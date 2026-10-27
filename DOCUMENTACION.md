@@ -110,3 +110,16 @@ Antes de alterar una sola línea de código de producción, se convirtió la tot
 1. Se extrajo la responsabilidad de notificar a la clase `src/notifications/EmailNotificador.js`, cuyo único método es `notificar(pedido)`.
 2. Se inyectó el notificador en el constructor de `PedidoService` (`constructor({ repository, notificador = new EmailNotificador() } = {})`).
 3. Se agregaron pruebas unitarias con espía de consola en `tests/notificaciones.test.js` y se verificó en `tests/pedidoService.test.js` la inyección de notificadores alternativos (DIP).
+
+
+---
+
+## 7. Composición e Inversión de Dependencias en el Punto de Entrada (Etapa 3 - Paso 5)
+
+### Problema:
+En `src/main.js`, `PedidoService` se instanciaba sin argumentos y dependía de la creación interna o valores globales.
+
+### Solución Aplicada:
+1. Se configuró `src/main.js` como la raíz de composición (*Composition Root*), instanciando explícitamente `LocalStoragePedidoRepository` y `EmailNotificador`.
+2. Se inyectaron estas dependencias al construir `new PedidoService({ repository, notificador })`.
+3. Se verificó que la compilación con Vite (`npm run build`) y todas las 29 pruebas unitarias se ejecuten con éxito.
