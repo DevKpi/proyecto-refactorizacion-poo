@@ -204,13 +204,43 @@ Ejemplos de commits siguientes:
 
 No alcanza con un unico commit "proyecto terminado".
 
+---
+
 ### Completar por el equipo en su entrega
 
-- Integrantes:
-- Descripcion del sistema:
-- Problemas detectados y evidencia:
-- Refactorizaciones realizadas y por que:
-- Principios utilizados y decisiones que los justifican:
-- Comportamientos preservados y pruebas que lo demuestran:
-- Cambios de comportamiento acordados, si los hubo:
-- Como ejecutar la aplicacion y los tests:
+- **Integrantes:** [Completar con nombres de los integrantes]
+- **Descripcion del sistema:**
+  Sistema web interactivo y orientado a objetos ("Tienda Aula") para la gestión de productos, pedidos de clientes, cálculo de subtotales, aplicación de descuentos según categoría de cliente, cálculo de costos logísticos según tipo de envío, persistencia de compras y notificación simulada.
+- **Problemas detectados y evidencia:**
+  - *Acumulación de responsabilidades (Violación de SRP):* En el código inicial, `PedidoService.registrar` calculaba precios, resolvía descuentos, calculaba costos de envío, guardaba en el array interno, persistía directamente en `localStorage` y emitía mensajes mediante `console.log`.
+  - *Rigidez y falta de extensibilidad (Violación de OCP):* Tanto los descuentos como los envíos dependían de cadenas fijas con `if (tipoCliente === ...)` y `if (tipoEnvio === ...)`, obligando a modificar `PedidoService` ante cualquier variación comercial.
+  - *Dependencia de implementaciones concretas (Violación de DIP):* `PedidoService` accedía de forma fija a `localStorage` y a `console.log`, impidiendo aislar las pruebas unitarias y acoplando el dominio a APIs de infraestructura.
+- **Refactorizaciones realizadas y por que:**
+  1. *Estrategias de Descuento (`src/descuentos/`):* Se crearon `DescuentoNormal`, `DescuentoPremium` y `DescuentoVIP` implementando el método común `aplicar(subtotal)`.
+  2. *Estrategias de Envío (`src/envios/`):* Se crearon `EnvioNormal` y `EnvioExpress` implementando el método común `calcular(pedido)`.
+  3. *Persistencia (`src/repositories/LocalStoragePedidoRepository.js`):* Se extrajo el manejo de almacenamiento local e historial en memoria a un repositorio independiente inyectado en `PedidoService`.
+  4. *Notificaciones (`src/notifications/EmailNotificador.js`):* Se extrajo la emisión de avisos al cliente a un componente dedicado inyectado en `PedidoService`.
+  5. *Composición en `src/main.js`:* Se ensamblaron las dependencias en el punto de entrada de la aplicación respetando el principio de inversión de dependencias.
+- **Principios utilizados y decisiones que los justifican:**
+  - **SRP (Single Responsibility):** Cada clase ahora posee un único motivo de cambio (cálculo de descuento, tarifa de envío, persistencia, notificación o coordinación de pedidos).
+  - **OCP (Open/Closed):** Nuevos esquemas de descuento o logística se agregan creando nuevas clases de estrategia sin editar la clase de servicio.
+  - **LSP (Liskov Substitution):** Cualquier clase de descuento o de envío respeta estrictamente su contrato común (`aplicar` y `calcular` respectivamente) y puede intercambiarse sin romper el flujo.
+  - **ISP (Interface Segregation):** Las interfaces de cada componente son mínimas y específicas (ej. el notificador solo requiere `notificar(pedido)`).
+  - **DIP (Dependency Inversion):** `PedidoService` recibe sus colaboradores (`repository`, `notificador`) desde el exterior en su constructor.
+- **Comportamientos preservados y pruebas que lo demuestran:**
+  - Se implementaron 29 pruebas unitarias con Jest (100% pasando) cubriendo:
+    - Conservación de propiedades en modelos (`modelos.test.js`).
+    - Descuentos del 0%, 10% y 20% (`descuentos.test.js`).
+    - Costos de envíos de $1000 y $2000 (`envios.test.js`).
+    - Orden de cálculo (descuento antes de envío, sin aplicar descuento al flete) y precisión decimal (`pedidoService.test.js`).
+    - Persistencia en repositorio e inyección de dependencias (`repositorio.test.js` y `pedidoService.test.js`).
+    - Emisión de notificaciones (`notificaciones.test.js`).
+- **Cambios de comportamiento acordados, si los hubo:**
+  - Ninguno. La API pública de `PedidoService.registrar` mantuvo compatibilidad regresiva con los argumentos originales en formato string (`"normal"`, `"premium"`, `"vip"`, `"express"`), habilitando además el paso de instancias polimórficas directas.
+- **Estado de Etapa 4 (Ampliaciones):**
+  - Pausada a la espera de la habilitación formal por parte del docente (Requisitos: *Cliente Mayorista* y *Retiro en Local*).
+- **Como ejecutar la aplicacion y los tests:**
+  - Pruebas unitarias: `npm test`
+  - Cobertura de tests: `npm run test:coverage`
+  - Servidor de desarrollo: `npm run dev`
+  - Compilación de producción: `npm run build`
