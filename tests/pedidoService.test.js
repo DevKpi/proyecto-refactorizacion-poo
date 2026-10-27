@@ -183,4 +183,24 @@ describe("PedidoService: caracterizacion antes de refactorizar", () => {
     // 10000 + 2000 = 12000
     expect(total).toBe(12000);
   });
+
+  test("permite inyectar un repositorio personalizado (DIP)", () => {
+    const pedidosGuardados = [];
+    const repositorioPersonalizado = {
+      guardar: (registro) => pedidosGuardados.push(registro),
+      obtenerTodos: () => pedidosGuardados,
+    };
+
+    const service = new PedidoService({ repository: repositorioPersonalizado });
+    const pedido = new Pedido(
+      { nombre: "Patricia", email: "patricia@example.com" },
+      [new Producto(1, "Lapicera", 1000)],
+    );
+
+    const total = service.registrar(pedido, "normal", "normal");
+
+    expect(total).toBe(2000);
+    expect(pedidosGuardados.length).toBe(1);
+    expect(pedidosGuardados[0]).toEqual({ pedido, total });
+  });
 });

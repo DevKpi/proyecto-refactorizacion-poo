@@ -76,3 +76,21 @@ Antes de alterar una sola línea de código de producción, se convirtió la tot
    - `src/envios/EnvioExpress.js`: Costo de envío rápido de $2.000.
 2. Contrato polimórfico común: método `calcular(pedido)` (**LSP**). Ambas clases devuelven un valor numérico y son directamente intercambiables.
 3. Se agregaron pruebas unitarias en `tests/envios.test.js` y se verificó en `tests/pedidoService.test.js` la posibilidad de inyectar la estrategia directamente.
+
+
+---
+
+## 5. Desacoplamiento de Persistencia: PedidoRepository (Etapa 3 - Paso 3)
+
+### Problema:
+`PedidoService` manipulaba directamente la API global del navegador `localStorage.setItem("pedidos", ...)` y gestionaba la estructura interna de almacenamiento. Esto producía:
+- **Violación de SRP:** `PedidoService` cambiaba tanto por lógica de pedidos como por cambios en la tecnología o estrategia de persistencia.
+- **Violación de DIP:** El servicio dependía directamente de la implementación concreta de `localStorage`, impidiendo su reemplazo fácil en tests o migraciones hacia APIs remotas.
+
+### Solución Aplicada:
+1. Se extrajo la persistencia a la clase `src/repositories/LocalStoragePedidoRepository.js`, con responsabilidades claras:
+   - `guardar(registro)`: Persiste en memoria y sincroniza con `localStorage`.
+   - `obtenerTodos()`: Devuelve los registros almacenados.
+2. Se aplicó **Inyección de Dependencias (DIP):** `PedidoService` ahora recibe el repositorio en su constructor (`constructor({ repository = new LocalStoragePedidoRepository() } = {})`).
+3. Se garantizó compatibilidad regresiva mediante un `getter` `pedidos` en `PedidoService` que delega en el repositorio.
+4. Se agregaron pruebas dedicadas en `tests/repositorio.test.js` y se verificó en `tests/pedidoService.test.js` la inyección de un repositorio en memoria.
