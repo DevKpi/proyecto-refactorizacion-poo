@@ -208,7 +208,7 @@ No alcanza con un unico commit "proyecto terminado".
 
 ### Completar por el equipo en su entrega
 
-- **Integrantes:** [Completar con nombres de los integrantes]
+- **Integrantes:** DevKpi - TekoBc
 - **Descripcion del sistema:**
   Sistema web interactivo y orientado a objetos ("Tienda Aula") para la gestión de productos, pedidos de clientes, cálculo de subtotales, aplicación de descuentos según categoría de cliente, cálculo de costos logísticos según tipo de envío, persistencia de compras y notificación simulada.
 - **Problemas detectados y evidencia:**
