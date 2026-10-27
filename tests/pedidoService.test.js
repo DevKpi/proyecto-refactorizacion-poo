@@ -3,6 +3,7 @@ import { Producto } from "../src/models/Producto.js";
 import { Pedido } from "../src/models/Pedido.js";
 import { PedidoService } from "../src/services/PedidoService.js";
 import { DescuentoVIP } from "../src/descuentos/DescuentoVIP.js";
+import { EnvioExpress } from "../src/envios/EnvioExpress.js";
 
 describe("PedidoService: caracterizacion antes de refactorizar", () => {
   test("cliente normal con envio normal paga subtotal mas 1000", () => {
@@ -167,5 +168,19 @@ describe("PedidoService: caracterizacion antes de refactorizar", () => {
 
     // 10000 * 0.8 = 8000 + 1000 = 9000
     expect(total).toBe(9000);
+  });
+
+  test("permite pasar una estrategia de envio polimorfica directamente", () => {
+    const pedido = new Pedido(
+      { nombre: "Osvaldo", email: "osvaldo@example.com" },
+      [new Producto(1, "Mochila", 10000)],
+    );
+    const service = new PedidoService();
+
+    // Inyectando directamente una instancia de EnvioExpress
+    const total = service.registrar(pedido, "normal", new EnvioExpress());
+
+    // 10000 + 2000 = 12000
+    expect(total).toBe(12000);
   });
 });

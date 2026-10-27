@@ -1,11 +1,18 @@
 import { DescuentoNormal } from "../descuentos/DescuentoNormal.js";
 import { DescuentoPremium } from "../descuentos/DescuentoPremium.js";
 import { DescuentoVIP } from "../descuentos/DescuentoVIP.js";
+import { EnvioNormal } from "../envios/EnvioNormal.js";
+import { EnvioExpress } from "../envios/EnvioExpress.js";
 
 const ESTRATEGIAS_DESCUENTO = {
   normal: new DescuentoNormal(),
   premium: new DescuentoPremium(),
   vip: new DescuentoVIP(),
+};
+
+const ESTRATEGIAS_ENVIO = {
+  normal: new EnvioNormal(),
+  express: new EnvioExpress(),
 };
 
 export class PedidoService {
@@ -20,6 +27,13 @@ export class PedidoService {
     return ESTRATEGIAS_DESCUENTO[descuento] || new DescuentoNormal();
   }
 
+  _resolverEnvio(envio) {
+    if (envio && typeof envio.calcular === "function") {
+      return envio;
+    }
+    return ESTRATEGIAS_ENVIO[envio] || { calcular: () => 0 };
+  }
+
   registrar(pedido, tipoCliente, tipoEnvio) {
     let subtotal = 0;
 
@@ -30,17 +44,9 @@ export class PedidoService {
     const estrategiaDescuento = this._resolverDescuento(tipoCliente);
     let total = estrategiaDescuento.aplicar(subtotal);
 
-    let costoEnvio = 0;
+    const estrategiaEnvio = this._resolverEnvio(tipoEnvio);
+    total += estrategiaEnvio.calcular(pedido);
 
-    if (tipoEnvio === "normal") {
-      costoEnvio = 1000;
-    }
-
-    if (tipoEnvio === "express") {
-      costoEnvio = 2000;
-    }
-
-    total += costoEnvio;
     this.pedidos.push({ pedido, total });
 
     localStorage.setItem("pedidos", JSON.stringify(this.pedidos));

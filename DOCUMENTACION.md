@@ -59,3 +59,20 @@ Antes de alterar una sola línea de código de producción, se convirtió la tot
 2. Se definió un contrato polimórfico común: método `aplicar(subtotal)` (**LSP**). Todas las estrategias son sustituibles entre sí sin generar efectos colaterales.
 3. Se crearon pruebas unitarias dedicadas en `tests/descuentos.test.js`.
 4. `PedidoService` delega la resolución del descuento en la estrategia correspondiente, aceptando tanto cadenas de texto tradicionales (compatibilidad regresiva) como instancias polimórficas directas.
+
+
+---
+
+## 4. Extracción de Estrategias de Envío (Etapa 3 - Paso 2)
+
+### Problema:
+`PedidoService.registrar` fijaba los costos de logística mediante condicionales `if (tipoEnvio === "normal") ...`. Esto presentaba:
+- **Violación de OCP:** Para agregar una nueva modalidad de logística (por ejemplo, Retiro en Local) era obligatorio modificar el servicio.
+- **Violación de SRP:** El servicio de pedidos se ocupaba de tarifas logísticas en lugar de limitarse a coordinar el flujo del pedido.
+
+### Solución Aplicada:
+1. Se extrajo el cálculo de costos de envío a clases dedicadas bajo el patrón **Strategy**:
+   - `src/envios/EnvioNormal.js`: Costo de envío estándar de $1.000.
+   - `src/envios/EnvioExpress.js`: Costo de envío rápido de $2.000.
+2. Contrato polimórfico común: método `calcular(pedido)` (**LSP**). Ambas clases devuelven un valor numérico y son directamente intercambiables.
+3. Se agregaron pruebas unitarias en `tests/envios.test.js` y se verificó en `tests/pedidoService.test.js` la posibilidad de inyectar la estrategia directamente.
