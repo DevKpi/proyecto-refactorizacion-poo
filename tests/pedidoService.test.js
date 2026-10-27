@@ -2,6 +2,7 @@ import { describe, expect, test } from "@jest/globals";
 import { Producto } from "../src/models/Producto.js";
 import { Pedido } from "../src/models/Pedido.js";
 import { PedidoService } from "../src/services/PedidoService.js";
+import { DescuentoVIP } from "../src/descuentos/DescuentoVIP.js";
 
 describe("PedidoService: caracterizacion antes de refactorizar", () => {
   test("cliente normal con envio normal paga subtotal mas 1000", () => {
@@ -152,5 +153,19 @@ describe("PedidoService: caracterizacion antes de refactorizar", () => {
 
     // 3 * 3000 = 9000; 9000 + 1000 = 10000
     expect(total).toBe(10000);
+  });
+
+  test("permite pasar una estrategia de descuento polimorfica directamente", () => {
+    const pedido = new Pedido(
+      { nombre: "Natalia", email: "natalia@example.com" },
+      [new Producto(1, "Mochila", 10000)],
+    );
+    const service = new PedidoService();
+
+    // Inyectando directamente una instancia de DescuentoVIP
+    const total = service.registrar(pedido, new DescuentoVIP(), "normal");
+
+    // 10000 * 0.8 = 8000 + 1000 = 9000
+    expect(total).toBe(9000);
   });
 });

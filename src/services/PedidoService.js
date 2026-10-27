@@ -1,22 +1,34 @@
+import { DescuentoNormal } from "../descuentos/DescuentoNormal.js";
+import { DescuentoPremium } from "../descuentos/DescuentoPremium.js";
+import { DescuentoVIP } from "../descuentos/DescuentoVIP.js";
+
+const ESTRATEGIAS_DESCUENTO = {
+  normal: new DescuentoNormal(),
+  premium: new DescuentoPremium(),
+  vip: new DescuentoVIP(),
+};
+
 export class PedidoService {
   constructor() {
     this.pedidos = [];
   }
 
+  _resolverDescuento(descuento) {
+    if (descuento && typeof descuento.aplicar === "function") {
+      return descuento;
+    }
+    return ESTRATEGIAS_DESCUENTO[descuento] || new DescuentoNormal();
+  }
+
   registrar(pedido, tipoCliente, tipoEnvio) {
-    let total = 0;
+    let subtotal = 0;
 
     for (const producto of pedido.productos) {
-      total += producto.precio;
+      subtotal += producto.precio;
     }
 
-    if (tipoCliente === "premium") {
-      total *= 0.9;
-    }
-
-    if (tipoCliente === "vip") {
-      total *= 0.8;
-    }
+    const estrategiaDescuento = this._resolverDescuento(tipoCliente);
+    let total = estrategiaDescuento.aplicar(subtotal);
 
     let costoEnvio = 0;
 

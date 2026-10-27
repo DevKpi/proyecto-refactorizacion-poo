@@ -40,3 +40,22 @@ Antes de alterar una sola línea de código de producción, se convirtió la tot
   - `calcula correctamente el total con el mismo producto repetido` (caso borde).
 
 **Resultado:** 15 pruebas pasando exitosamente (100% cobertura del comportamiento base).
+
+
+---
+
+## 3. Extracción de Estrategias de Descuento (Etapa 3 - Paso 1)
+
+### Problema:
+`PedidoService.registrar` calculaba los descuentos mediante un bloque `if` anidado sobre `tipoCliente`. Esta lógica violaba:
+- **OCP:** Para agregar un nuevo descuento era necesario modificar la clase `PedidoService`.
+- **SRP:** `PedidoService` era responsable de conocer las tasas y fórmulas matemáticas de cada categoría de cliente.
+
+### Solución Aplicada:
+1. Se extrajo la responsabilidad del cálculo de descuentos a clases independientes bajo el patrón **Strategy**:
+   - `src/descuentos/DescuentoNormal.js`: Retorna el subtotal sin descuento (0%).
+   - `src/descuentos/DescuentoPremium.js`: Aplica un 10% de descuento (`subtotal * 0.9`).
+   - `src/descuentos/DescuentoVIP.js`: Aplica un 20% de descuento (`subtotal * 0.8`).
+2. Se definió un contrato polimórfico común: método `aplicar(subtotal)` (**LSP**). Todas las estrategias son sustituibles entre sí sin generar efectos colaterales.
+3. Se crearon pruebas unitarias dedicadas en `tests/descuentos.test.js`.
+4. `PedidoService` delega la resolución del descuento en la estrategia correspondiente, aceptando tanto cadenas de texto tradicionales (compatibilidad regresiva) como instancias polimórficas directas.
