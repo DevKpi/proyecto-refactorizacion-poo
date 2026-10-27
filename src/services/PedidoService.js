@@ -4,6 +4,7 @@ import { DescuentoVIP } from "../descuentos/DescuentoVIP.js";
 import { EnvioNormal } from "../envios/EnvioNormal.js";
 import { EnvioExpress } from "../envios/EnvioExpress.js";
 import { LocalStoragePedidoRepository } from "../repositories/LocalStoragePedidoRepository.js";
+import { EmailNotificador } from "../notifications/EmailNotificador.js";
 
 const ESTRATEGIAS_DESCUENTO = {
   normal: new DescuentoNormal(),
@@ -17,8 +18,12 @@ const ESTRATEGIAS_ENVIO = {
 };
 
 export class PedidoService {
-  constructor({ repository = new LocalStoragePedidoRepository() } = {}) {
+  constructor({
+    repository = new LocalStoragePedidoRepository(),
+    notificador = new EmailNotificador(),
+  } = {}) {
     this.repository = repository;
+    this.notificador = notificador;
   }
 
   get pedidos() {
@@ -53,7 +58,10 @@ export class PedidoService {
     total += estrategiaEnvio.calcular(pedido);
 
     this.repository.guardar({ pedido, total });
-    console.log(`Email enviado a ${pedido.cliente.email}`);
+
+    if (this.notificador && typeof this.notificador.notificar === "function") {
+      this.notificador.notificar(pedido);
+    }
 
     return total;
   }

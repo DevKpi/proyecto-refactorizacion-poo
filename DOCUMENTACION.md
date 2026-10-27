@@ -94,3 +94,19 @@ Antes de alterar una sola línea de código de producción, se convirtió la tot
 2. Se aplicó **Inyección de Dependencias (DIP):** `PedidoService` ahora recibe el repositorio en su constructor (`constructor({ repository = new LocalStoragePedidoRepository() } = {})`).
 3. Se garantizó compatibilidad regresiva mediante un `getter` `pedidos` en `PedidoService` que delega en el repositorio.
 4. Se agregaron pruebas dedicadas en `tests/repositorio.test.js` y se verificó en `tests/pedidoService.test.js` la inyección de un repositorio en memoria.
+
+
+---
+
+## 6. Desacoplamiento de Notificaciones: EmailNotificador (Etapa 3 - Paso 4)
+
+### Problema:
+`PedidoService` emitía notificaciones a través de `console.log("Email enviado a ...")`.
+- **Violación de SRP:** `PedidoService` decidía cómo, cuándo y a través de qué medio notificar a los clientes.
+- **Violación de DIP:** Dependencia dura de `console.log`, dificultando silenciar mensajes en tests unitarios o cambiar el canal a SMS, Webhooks o un servicio SMTP real.
+- **Cumplimiento de ISP:** La interfaz de notificación se mantuvo mínima y precisa (`notificar(pedido)`), sin obligar a implementar métodos innecesarios.
+
+### Solución Aplicada:
+1. Se extrajo la responsabilidad de notificar a la clase `src/notifications/EmailNotificador.js`, cuyo único método es `notificar(pedido)`.
+2. Se inyectó el notificador en el constructor de `PedidoService` (`constructor({ repository, notificador = new EmailNotificador() } = {})`).
+3. Se agregaron pruebas unitarias con espía de consola en `tests/notificaciones.test.js` y se verificó en `tests/pedidoService.test.js` la inyección de notificadores alternativos (DIP).

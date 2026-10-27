@@ -203,4 +203,23 @@ describe("PedidoService: caracterizacion antes de refactorizar", () => {
     expect(pedidosGuardados.length).toBe(1);
     expect(pedidosGuardados[0]).toEqual({ pedido, total });
   });
+
+  test("permite inyectar un notificador personalizado (DIP)", () => {
+    const notificacionesEnviadas = [];
+    const notificadorPersonalizado = {
+      notificar: (pedido) => notificacionesEnviadas.push(pedido),
+    };
+
+    const service = new PedidoService({ notificador: notificadorPersonalizado });
+    const pedido = new Pedido(
+      { nombre: "Renzo", email: "renzo@example.com" },
+      [new Producto(1, "Lapicera", 1000)],
+    );
+
+    const total = service.registrar(pedido, "normal", "normal");
+
+    expect(total).toBe(2000);
+    expect(notificacionesEnviadas.length).toBe(1);
+    expect(notificacionesEnviadas[0]).toBe(pedido);
+  });
 });
