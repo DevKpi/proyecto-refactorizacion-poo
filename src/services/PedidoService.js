@@ -1,6 +1,7 @@
 import { DescuentoNormal } from "../descuentos/DescuentoNormal.js";
 import { DescuentoPremium } from "../descuentos/DescuentoPremium.js";
 import { DescuentoVIP } from "../descuentos/DescuentoVIP.js";
+import { DescuentoMayorista } from "../descuentos/DescuentoMayorista.js";
 import { EnvioNormal } from "../envios/EnvioNormal.js";
 import { EnvioExpress } from "../envios/EnvioExpress.js";
 import { LocalStoragePedidoRepository } from "../repositories/LocalStoragePedidoRepository.js";
@@ -10,6 +11,7 @@ const ESTRATEGIAS_DESCUENTO = {
   normal: new DescuentoNormal(),
   premium: new DescuentoPremium(),
   vip: new DescuentoVIP(),
+  mayorista: new DescuentoMayorista(),
 };
 
 const ESTRATEGIAS_ENVIO = {
