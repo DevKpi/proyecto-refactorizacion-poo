@@ -158,7 +158,7 @@ punto de entrada y adapten el acceso al historial si cambia la API publica.
 
 ### Etapa 4: ampliaciones a liberar por el docente
 
-No implementar hasta que el docente habilite esta etapa:
+Una vez habilitada esta etapa por el docente, se implementaron:
 
 1. Cliente **Mayorista**: 25% de descuento sobre productos.
 2. **Retiro en Local**: costo de envio $0.
@@ -216,8 +216,8 @@ No alcanza con un unico commit "proyecto terminado".
   - *Rigidez y falta de extensibilidad (Violación de OCP):* Tanto los descuentos como los envíos dependían de cadenas fijas con `if (tipoCliente === ...)` y `if (tipoEnvio === ...)`, obligando a modificar `PedidoService` ante cualquier variación comercial.
   - *Dependencia de implementaciones concretas (Violación de DIP):* `PedidoService` accedía de forma fija a `localStorage` y a `console.log`, impidiendo aislar las pruebas unitarias y acoplando el dominio a APIs de infraestructura.
 - **Refactorizaciones realizadas y por que:**
-  1. *Estrategias de Descuento (`src/descuentos/`):* Se crearon `DescuentoNormal`, `DescuentoPremium` y `DescuentoVIP` implementando el método común `aplicar(subtotal)`.
-  2. *Estrategias de Envío (`src/envios/`):* Se crearon `EnvioNormal` y `EnvioExpress` implementando el método común `calcular(pedido)`.
+  1. *Estrategias de Descuento (`src/descuentos/`):* Se crearon `DescuentoNormal`, `DescuentoPremium`, `DescuentoVIP` y `DescuentoMayorista`, implementando el método común `aplicar(subtotal)`.
+  2. *Estrategias de Envío (`src/envios/`):* Se crearon `EnvioNormal`, `EnvioExpress` y `RetiroLocal`, implementando el método común `calcular(pedido)`.
   3. *Persistencia (`src/repositories/LocalStoragePedidoRepository.js`):* Se extrajo el manejo de almacenamiento local e historial en memoria a un repositorio independiente inyectado en `PedidoService`.
   4. *Notificaciones (`src/notifications/EmailNotificador.js`):* Se extrajo la emisión de avisos al cliente a un componente dedicado inyectado en `PedidoService`.
   5. *Composición en `src/main.js`:* Se ensamblaron las dependencias en el punto de entrada de la aplicación respetando el principio de inversión de dependencias.
@@ -228,17 +228,21 @@ No alcanza con un unico commit "proyecto terminado".
   - **ISP (Interface Segregation):** Las interfaces de cada componente son mínimas y específicas (ej. el notificador solo requiere `notificar(pedido)`).
   - **DIP (Dependency Inversion):** `PedidoService` recibe sus colaboradores (`repository`, `notificador`) desde el exterior en su constructor.
 - **Comportamientos preservados y pruebas que lo demuestran:**
-  - Se implementaron 29 pruebas unitarias con Jest (100% pasando) cubriendo:
+  - Se implementaron 34 pruebas unitarias con Jest (100% pasando) cubriendo:
     - Conservación de propiedades en modelos (`modelos.test.js`).
-    - Descuentos del 0%, 10% y 20% (`descuentos.test.js`).
-    - Costos de envíos de $1000 y $2000 (`envios.test.js`).
+    - Descuentos del 0%, 10%, 20% y 25% mayorista (`descuentos.test.js`).
+    - Costos de envíos de $1000, $2000 y $0 para retiro local (`envios.test.js`).
     - Orden de cálculo (descuento antes de envío, sin aplicar descuento al flete) y precisión decimal (`pedidoService.test.js`).
     - Persistencia en repositorio e inyección de dependencias (`repositorio.test.js` y `pedidoService.test.js`).
     - Emisión de notificaciones (`notificaciones.test.js`).
 - **Cambios de comportamiento acordados, si los hubo:**
   - Ninguno. La API pública de `PedidoService.registrar` mantuvo compatibilidad regresiva con los argumentos originales en formato string (`"normal"`, `"premium"`, `"vip"`, `"express"`), habilitando además el paso de instancias polimórficas directas.
 - **Estado de Etapa 4 (Ampliaciones):**
-  - Pausada a la espera de la habilitación formal por parte del docente (Requisitos: *Cliente Mayorista* y *Retiro en Local*).
+  - Completada: se incorporaron `DescuentoMayorista` con 25% de descuento y `RetiroLocal` con costo $0.
+  - La interfaz permite seleccionar ambas opciones y se verificó la combinación de productos por $4000 + Mayorista + Retiro en Local = $3000.
+- **Estado de Etapa 5 (Verificación y explicación):**
+  - Completada con `npm test` (34 pruebas pasando) y `npm run build` (compilación de producción exitosa).
+  - Las ampliaciones se agregaron mediante nuevas estrategias, sin modificar las estrategias anteriores ni el algoritmo central de `PedidoService`.
 - **Como ejecutar la aplicacion y los tests:**
   - Pruebas unitarias: `npm test`
   - Cobertura de tests: `npm run test:coverage`

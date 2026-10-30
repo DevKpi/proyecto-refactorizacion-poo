@@ -122,4 +122,28 @@ En `src/main.js`, `PedidoService` se instanciaba sin argumentos y dependía de l
 ### Solución Aplicada:
 1. Se configuró `src/main.js` como la raíz de composición (*Composition Root*), instanciando explícitamente `LocalStoragePedidoRepository` y `EmailNotificador`.
 2. Se inyectaron estas dependencias al construir `new PedidoService({ repository, notificador })`.
-3. Se verificó que la compilación con Vite (`npm run build`) y todas las 29 pruebas unitarias se ejecuten con éxito.
+3. Se verificó que la compilación con Vite (`npm run build`) y todas las 34 pruebas unitarias se ejecuten con éxito.
+
+---
+
+## 8. Ampliaciones de la Etapa 4
+
+La ampliación se desarrolló con TDD y commits separados por unidad conceptual:
+
+1. Se agregaron pruebas para `DescuentoMayorista` y su uso desde `PedidoService`.
+2. Se implementó `src/descuentos/DescuentoMayorista.js`, que aplica el 25% de descuento mediante `subtotal * 0.75`.
+3. Se agregaron pruebas para `RetiroLocal` y su uso desde `PedidoService`.
+4. Se implementó `src/envios/RetiroLocal.js`, que devuelve costo `0`.
+5. Se agregó el caso integrado de productos por $4000 + Mayorista + Retiro en Local = $3000.
+6. Se incorporaron ambas opciones a los selectores de `index.html`.
+
+Las nuevas clases respetan el contrato de sus estrategias existentes. Por eso se cumple OCP: el servicio solo amplía su registro de estrategias y no necesita condicionales nuevos para calcular descuentos o envíos.
+
+## 9. Verificación de la Etapa 5
+
+- `npm test -- --runInBand`: 34 pruebas pasando.
+- `npm run build`: compilación de producción exitosa con Vite.
+- Las estrategias originales continúan pasando sus pruebas.
+- La interfaz permite registrar pedidos con cliente Mayorista y Retiro en Local.
+- `PedidoService` mantiene la inyección de repositorio y notificador.
+- El historial Git conserva commits granulares para pruebas, estrategias, interfaz y documentación.
