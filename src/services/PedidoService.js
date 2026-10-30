@@ -4,6 +4,7 @@ import { DescuentoVIP } from "../descuentos/DescuentoVIP.js";
 import { DescuentoMayorista } from "../descuentos/DescuentoMayorista.js";
 import { EnvioNormal } from "../envios/EnvioNormal.js";
 import { EnvioExpress } from "../envios/EnvioExpress.js";
+import { RetiroLocal } from "../envios/RetiroLocal.js";
 import { LocalStoragePedidoRepository } from "../repositories/LocalStoragePedidoRepository.js";
 import { EmailNotificador } from "../notifications/EmailNotificador.js";
 
@@ -17,6 +18,7 @@ const ESTRATEGIAS_DESCUENTO = {
 const ESTRATEGIAS_ENVIO = {
   normal: new EnvioNormal(),
   express: new EnvioExpress(),
+  "retiro-local": new RetiroLocal(),
 };
 
 export class PedidoService {
