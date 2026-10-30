@@ -2,6 +2,7 @@ import { describe, expect, test } from "@jest/globals";
 import { DescuentoNormal } from "../src/descuentos/DescuentoNormal.js";
 import { DescuentoPremium } from "../src/descuentos/DescuentoPremium.js";
 import { DescuentoVIP } from "../src/descuentos/DescuentoVIP.js";
+import { DescuentoMayorista } from "../src/descuentos/DescuentoMayorista.js";
 
 describe("Estrategias de Descuento (Polimorfismo / OCP / LSP)", () => {
   test("DescuentoNormal no altera el subtotal (0% descuento)", () => {
@@ -22,11 +23,18 @@ describe("Estrategias de Descuento (Polimorfismo / OCP / LSP)", () => {
     expect(estrategia.aplicar(4000)).toBe(3200);
   });
 
+  test("DescuentoMayorista aplica un 25% de descuento sobre el subtotal", () => {
+    const estrategia = new DescuentoMayorista();
+    expect(estrategia.aplicar(1000)).toBe(750);
+    expect(estrategia.aplicar(4000)).toBe(3000);
+  });
+
   test("todas las estrategias de descuento cumplen el mismo contrato polimórfico (LSP)", () => {
     const estrategias = [
       new DescuentoNormal(),
       new DescuentoPremium(),
       new DescuentoVIP(),
+      new DescuentoMayorista(),
     ];
 
     const subtotal = 10000;

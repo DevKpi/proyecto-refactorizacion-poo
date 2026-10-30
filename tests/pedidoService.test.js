@@ -44,6 +44,19 @@ describe("PedidoService: caracterizacion antes de refactorizar", () => {
     expect(total).toBe(4200);
   });
 
+  test("cliente mayorista recibe 25% de descuento sobre los productos", () => {
+    const pedido = new Pedido(
+      { nombre: "Marta", email: "marta@example.com" },
+      [new Producto(1, "Cuaderno", 3000), new Producto(2, "Lapicera", 1000)],
+    );
+    const service = new PedidoService();
+
+    const total = service.registrar(pedido, "mayorista", "normal");
+
+    // 4000 * 0.75 = 3000; envío normal: 1000
+    expect(total).toBe(4000);
+  });
+
   test("envio express agrega 2000", () => {
     const pedido = new Pedido(
       { nombre: "David", email: "david@example.com" },
