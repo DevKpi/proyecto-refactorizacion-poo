@@ -57,6 +57,18 @@ describe("PedidoService: caracterizacion antes de refactorizar", () => {
     expect(total).toBe(4000);
   });
 
+  test("retiro en local no agrega costo de envío", () => {
+    const pedido = new Pedido(
+      { nombre: "Nora", email: "nora@example.com" },
+      [new Producto(1, "Cuaderno", 3000), new Producto(2, "Lapicera", 1000)],
+    );
+    const service = new PedidoService();
+
+    const total = service.registrar(pedido, "normal", "retiro-local");
+
+    expect(total).toBe(4000);
+  });
+
   test("envio express agrega 2000", () => {
     const pedido = new Pedido(
       { nombre: "David", email: "david@example.com" },
